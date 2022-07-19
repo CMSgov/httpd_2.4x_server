@@ -1,0 +1,34 @@
+include:
+- project: stig/inspec-scanning-integration
+  ref: 1.3.0
+  file: templates/templates.yml
+
+before_script:
+  - echo "SCV Pipeline for Apache 2.4 Server"
+
+stages:
+  - check
+  - lint
+  - exec
+  - publish
+
+check Apache_2.4_Server:
+  extends: .ci:stage:check:inspec
+
+lint Apache_2.4_Server:
+  extends: .ci:stage:lint:inspec
+
+exec Apache_2.4_Server:
+  extends: .ci:stage:exec:inspec
+  variables:
+    TARGET: 'rep.dsolab.io/baselines/apache2.4_baseline:1.1'
+    INSPEC_INPUTS: ''
+    DOCKER_INPUTS: ''
+
+
+publish Apache_2.4_Server:
+  extends: .ci:stage:publish:inspec:artifacts
+  dependencies:
+  - check Apache_2.4_Server
+  - lint Apache_2.4_Server
+  - exec Apache_2.4_Server
